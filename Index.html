@@ -1,743 +1,742 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jedi Archives // Training Logger</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
+    <!-- FontAwesome for Jedi/Sci-Fi Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Insights -->
+    <!-- Chart.js for Telemetry Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        jedi: {
-                            bg: '#060911',
-                            card: '#0c1322',
-                            panel: '#111a2e',
-                            cyan: '#00f3ff',
-                            blue: '#0077ff',
-                            amber: '#ffb700',
-                            green: '#00ff88',
-                            red: '#ff2a5f',
-                            glow: 'rgba(0, 243, 255, 0.15)'
-                        }
-                    },
-                    fontFamily: {
-                        orbitron: ['Orbitron', 'sans-serif'],
-                        rajdhani: ['Rajdhani', 'sans-serif']
-                    },
-                    boxShadow: {
-                        'neon-cyan': '0 0 15px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0, 243, 255, 0.2)',
-                        'neon-blue': '0 0 15px rgba(0, 119, 255, 0.5)',
-                        'neon-amber': '0 0 15px rgba(255, 183, 0, 0.5)',
-                        'holocron': '0 0 30px rgba(0, 243, 255, 0.25), 0 0 5px rgba(0, 243, 255, 0.8)'
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
+        :root {
+            --bg-deep: #050b14;
+            --bg-card: rgba(10, 25, 47, 0.7);
+            --bg-card-border: rgba(0, 212, 255, 0.25);
+            --primary: #00d4ff;
+            --primary-glow: rgba(0, 212, 255, 0.4);
+            --accent-amber: #ffaa00;
+            --accent-purple: #a855f7;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --font-title: 'Cinzel', 'Trajan Pro', Georgia, serif;
+            --font-code: 'Consolas', 'Courier New', monospace;
+        }
+
+        [data-theme="sith"] {
+            --primary: #ff2a2a;
+            --primary-glow: rgba(ff, 42, 42, 0.4);
+            --bg-card-border: rgba(255, 42, 42, 0.3);
+            --accent-amber: #ff6600;
+        }
+
+        [data-theme="consular"] {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg-card-border: rgba(16, 185, 129, 0.3);
+        }
+
+        [data-theme="sentinel"] {
+            --primary: #f59e0b;
+            --primary-glow: rgba(245, 158, 11, 0.4);
+            --bg-card-border: rgba(245, 158, 11, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
         body {
-            background-color: #060911;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.08) 0%, transparent 60%),
-                radial-gradient(circle at 80% 80%, rgba(0, 119, 255, 0.05) 0%, transparent 50%),
-                linear-gradient(to bottom, rgba(6, 9, 17, 0.95), rgba(6, 9, 17, 0.98)),
-                url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><g fill="%2300f3ff" fill-opacity="0.03" fill-rule="evenodd"><path d="M0 40L40 0H20L0 20M40 40V20L20 40"/></g></svg>');
-            font-family: 'Rajdhani', sans-serif;
-            color: #d1d5db;
+                radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.08) 0%, transparent 70%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        .sci-border {
+        /* Scanline FX */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0 30px 0;
+            border-bottom: 1px solid var(--bg-card-border);
+            margin-bottom: 30px;
             position: relative;
-            border: 1px solid rgba(0, 243, 255, 0.25);
-            background: rgba(12, 19, 34, 0.75);
-            backdrop-filter: blur(8px);
         }
 
-        .sci-border::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            width: 8px;
-            height: 8px;
-            border-top: 2px solid #00f3ff;
-            border-left: 2px solid #00f3ff;
-        }
-
-        .sci-border::after {
+        header::after {
             content: '';
             position: absolute;
             bottom: -1px;
-            right: -1px;
-            width: 8px;
-            height: 8px;
-            border-bottom: 2px solid #00f3ff;
-            border-right: 2px solid #00f3ff;
+            left: 0;
+            width: 150px;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
         }
 
-        /* Holocron Lines Effect */
-        .holocron-scanline {
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0, 243, 255, 0.03) 50%,
-                rgba(0, 243, 255, 0.03)
-            );
-            background-size: 100% 4px;
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Custom Scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .holocron-icon {
+            font-size: 2.2rem;
+            color: var(--primary);
+            text-shadow: 0 0 12px var(--primary);
+            animation: pulse 3s infinite alternate;
         }
-        ::-webkit-scrollbar-track {
-            background: #060911;
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 4px var(--primary)); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 0 14px var(--primary)); }
         }
-        ::-webkit-scrollbar-thumb {
-            background: #0077ff;
+
+        h1 {
+            font-family: var(--font-title);
+            letter-spacing: 2px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-family: var(--font-code);
+            letter-spacing: 3px;
+        }
+
+        /* Profile & Rank Bar */
+        .profile-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--primary);
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .rank-name {
+            font-size: 1.4rem;
+            font-family: var(--font-title);
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .progress-outer {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #ffffff);
+            box-shadow: 0 0 10px var(--primary);
+            width: 45%;
+            transition: width 0.5s ease;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            font-family: var(--font-code);
+        }
+
+        /* Layout Main */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-family: var(--font-code);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(5, 15, 30, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-family: var(--font-code);
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: var(--bg-deep);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* Logs Feed */
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .log-entry {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .log-entry:hover {
+            transform: translateX(4px);
+            border-color: var(--primary);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .log-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .log-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
             border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00f3ff;
+            font-size: 0.75rem;
+            font-family: var(--font-code);
+            text-transform: uppercase;
+            margin-right: 8px;
         }
 
-        .glow-text-cyan {
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.6), 0 0 20px rgba(0, 243, 255, 0.3);
+        .badge-saber { background: rgba(0, 212, 255, 0.15); color: #00d4ff; border: 1px solid #00d4ff; }
+        .badge-force { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid #a855f7; }
+        .badge-meditation { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
+        .badge-lore { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+
+        .log-notes {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-top: 10px;
         }
-        .glow-text-amber {
-            text-shadow: 0 0 10px rgba(255, 183, 0, 0.6), 0 0 20px rgba(255, 183, 0, 0.3);
+
+        .log-xp {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-family: var(--font-code);
+            color: var(--accent-amber);
+            font-weight: bold;
         }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-left: 10px;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:hover {
+            color: #ff4757;
+        }
+
+        .chart-container {
+            height: 220px;
+            margin-top: 20px;
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .dot-guardian { background: #00d4ff; }
+        .dot-consular { background: #10b981; }
+        .dot-sentinel { background: #f59e0b; }
+        .dot-sith { background: #ff2a2a; }
+
+        .dot.active { border-color: #fff; }
     </style>
 </head>
-<body class="min-h-screen holocron-scanline flex flex-col justify-between pb-10">
+<body>
 
-    <!-- TOP WISDOM TICKER -->
-    <div class="w-full bg-jedi-panel/90 border-b border-jedi-cyan/30 py-2 px-4 text-xs font-orbitron tracking-widest text-jedi-cyan/90 flex items-center justify-between shadow-lg">
-        <div class="flex items-center gap-3 overflow-hidden">
-            <span class="bg-jedi-cyan/20 text-jedi-cyan px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-jedi-cyan/40 shrink-0">
-                <i class="fa-solid fa-jedi me-1"></i> ARCHIVE CODEX
-            </span>
-            <div id="wisdom-quote" class="truncate animate-pulse text-gray-300">
-                "There is no emotion, there is peace. There is no ignorance, there is knowledge."
-            </div>
-        </div>
-        <button onclick="nextWisdomQuote()" class="text-xs text-jedi-cyan hover:text-white transition-colors ms-2 shrink-0">
-            <i class="fa-solid fa-arrows-rotate"></i>
-        </button>
-    </div>
-
-    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6 flex-grow space-y-8">
-
-        <!-- HEADER SECTION -->
-        <header class="sci-border p-6 rounded-lg relative overflow-hidden shadow-holocron">
-            <div class="absolute -right-10 -bottom-10 opacity-10 text-jedi-cyan pointer-events-none">
-                <i class="fa-solid fa-jedi text-[220px]"></i>
-            </div>
-            
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-6 relative z-10">
-                <div class="text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 text-xs font-orbitron text-jedi-cyan tracking-widest uppercase mb-1">
-                        <span class="w-2 h-2 rounded-full bg-jedi-cyan animate-ping"></span>
-                        JEDI TEMPLE TELEMETRY // SECTOR 001
-                    </div>
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold font-orbitron text-white tracking-wider glow-text-cyan">
-                        JEDI ARCHIVES <span class="text-jedi-cyan">//</span> LOG
-                    </h1>
-                    <p class="text-gray-400 text-sm mt-1 max-w-xl">
-                        Record combat drills, Force attunement, and spiritual reflections to track your journey toward Mastery.
-                    </p>
-                </div>
-
-                <!-- JEDI RANK SELECTOR CARD -->
-                <div class="sci-border bg-jedi-bg/80 p-4 rounded-lg flex items-center gap-4 border-jedi-cyan/30 shadow-md">
-                    <div class="w-14 h-14 rounded-full border-2 border-jedi-amber flex items-center justify-center bg-jedi-amber/10 shadow-neon-amber text-jedi-amber text-2xl" id="rank-icon">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <div>
-                        <div class="text-xs font-orbitron text-gray-400 uppercase tracking-widest">CURRENT RANK</div>
-                        <select id="jedi-rank-select" onchange="updateRankUI()" class="bg-jedi-card text-jedi-amber font-orbitron font-bold text-lg border border-jedi-amber/40 rounded px-3 py-1 mt-1 focus:outline-none focus:ring-1 focus:ring-jedi-amber cursor-pointer">
-                            <option value="Youngling">Initiate / Youngling</option>
-                            <option value="Padawan" selected>Padawan</option>
-                            <option value="Jedi Knight">Jedi Knight</option>
-                            <option value="Jedi Master">Jedi Master</option>
-                            <option value="Grand Master">Grand Master</option>
-                        </select>
-                        <div class="text-[11px] text-gray-400 mt-1 font-mono" id="rank-title-desc">Assigned to Master Overseer</div>
-                    </div>
+    <div class="container">
+        <header>
+            <div class="logo-group">
+                <i class="fa-solid fa-gem holocron-icon"></i>
+                <div>
+                    <h1>Jedi Archives</h1>
+                    <div class="subtitle">TRAINING_LOGGER // v2.5</div>
                 </div>
             </div>
 
-            <!-- DASHBOARD STATS OVERVIEW -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-jedi-cyan/20">
-                <div class="bg-jedi-bg/60 p-4 rounded border border-jedi-cyan/20 flex flex-col items-center justify-center text-center">
-                    <span class="text-gray-400 text-xs font-orbitron uppercase tracking-wider">Total Sessions</span>
-                    <span id="stat-total-sessions" class="text-2xl font-bold font-orbitron text-jedi-cyan mt-1">0</span>
-                </div>
-                <div class="bg-jedi-bg/60 p-4 rounded border border-jedi-cyan/20 flex flex-col items-center justify-center text-center">
-                    <span class="text-gray-400 text-xs font-orbitron uppercase tracking-wider">Hours Trained</span>
-                    <span id="stat-total-hours" class="text-2xl font-bold font-orbitron text-jedi-blue mt-1">0.0</span>
-                </div>
-                <div class="bg-jedi-bg/60 p-4 rounded border border-jedi-cyan/20 flex flex-col items-center justify-center text-center">
-                    <span class="text-gray-400 text-xs font-orbitron uppercase tracking-wider">Disciplines</span>
-                    <span id="stat-disciplines" class="text-2xl font-bold font-orbitron text-jedi-amber mt-1">0</span>
-                </div>
-                <div class="bg-jedi-bg/60 p-4 rounded border border-jedi-cyan/20 flex flex-col items-center justify-center text-center">
-                    <span class="text-gray-400 text-xs font-orbitron uppercase tracking-wider">Current Streak</span>
-                    <span id="stat-streak" class="text-2xl font-bold font-orbitron text-jedi-green mt-1">0 Days</span>
-                </div>
+            <div class="theme-selector">
+                <div class="dot dot-guardian active" onclick="setTheme('guardian')" title="Guardian (Blue)"></div>
+                <div class="dot dot-consular" onclick="setTheme('consular')" title="Consular (Green)"></div>
+                <div class="dot dot-sentinel" onclick="setTheme('sentinel')" title="Sentinel (Yellow)"></div>
+                <div class="dot dot-sith" onclick="setTheme('sith')" title="Sith Order (Red)"></div>
             </div>
         </header>
 
-        <!-- MAIN CONTENT LAYOUT: LOG FORM + INSIGHTS -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- NEW LOG ENTRY FORM (5 cols) -->
-            <section class="lg:col-span-5 space-y-6">
-                <div class="sci-border p-6 rounded-lg shadow-lg">
-                    <h2 class="text-xl font-orbitron font-bold text-white flex items-center gap-2 mb-4 text-jedi-cyan border-b border-jedi-cyan/20 pb-3">
-                        <i class="fa-solid fa-feather-pointed"></i> RECORD NEW TRAINING
-                    </h2>
+        <!-- Profile Bar -->
+        <div class="profile-bar">
+            <div class="card">
+                <div class="card-title">Jedi Status <i class="fa-solid fa-shield-halved"></i></div>
+                <div class="rank-name" id="rank-display">Jedi Knight</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">XP to Next Rank: <span id="xp-next">500</span></div>
+                <div class="progress-outer">
+                    <div class="progress-inner" id="xp-bar"></div>
+                </div>
+            </div>
 
-                    <form id="training-form" onsubmit="saveLogEntry(event)" class="space-y-4">
-                        <input type="hidden" id="entry-id">
+            <div class="card">
+                <div class="card-title">Total Experience <i class="fa-solid fa-bolt"></i></div>
+                <div class="stat-value" id="total-xp">0 XP</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Accumulated Force Energy</div>
+            </div>
 
-                        <!-- Date & Time -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-orbitron text-gray-300 mb-1">DATE</label>
-                                <input type="date" id="entry-date" required class="w-full bg-jedi-bg text-white border border-jedi-cyan/30 rounded px-3 py-2 text-sm focus:border-jedi-cyan focus:outline-none focus:ring-1 focus:ring-jedi-cyan">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-orbitron text-gray-300 mb-1">TIME</label>
-                                <input type="time" id="entry-time" required class="w-full bg-jedi-bg text-white border border-jedi-cyan/30 rounded px-3 py-2 text-sm focus:border-jedi-cyan focus:outline-none focus:ring-1 focus:ring-jedi-cyan">
-                            </div>
+            <div class="card">
+                <div class="card-title">Completed Logs <i class="fa-solid fa-scroll"></i></div>
+                <div class="stat-value" id="total-logs">0</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Recorded Training Sessions</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-grid">
+            <!-- Left Form & Telemetry -->
+            <div>
+                <div class="card" style="margin-bottom: 25px;">
+                    <div class="card-title" style="margin-bottom: 15px;">New Holocron Record</div>
+                    <form id="log-form">
+                        <div class="form-group">
+                            <label>Training Subject</label>
+                            <input type="text" id="title" placeholder="e.g. Form III Soresu Practice" required>
                         </div>
 
-                        <!-- Discipline / Category -->
-                        <div>
-                            <label class="block text-xs font-orbitron text-gray-300 mb-1">DISCIPLINE / TECHNIQUE</label>
-                            <select id="entry-category" required class="w-full bg-jedi-bg text-white border border-jedi-cyan/30 rounded px-3 py-2 text-sm focus:border-jedi-cyan focus:outline-none focus:ring-1 focus:ring-jedi-cyan">
-                                <optgroup label="Lightsaber Combat Forms">
-                                    <option value="Form I: Shii-Cho">Form I: Shii-Cho (Determination)</option>
-                                    <option value="Form II: Makashi">Form II: Makashi (Contention)</option>
-                                    <option value="Form III: Soresu">Form III: Soresu (Resilience)</option>
-                                    <option value="Form IV: Ataru">Form IV: Ataru (Aggression)</option>
-                                    <option value="Form V: Shien / Djem So">Form V: Shien / Djem So (Perseverance)</option>
-                                    <option value="Form VI: Niman">Form VI: Niman (Moderation)</option>
-                                    <option value="Form VII: Juyo / Vaapad">Form VII: Juyo / Vaapad (Ferocity)</option>
-                                </optgroup>
-                                <optgroup label="Force Manipulation">
-                                    <option value="Force Telekinesis">Telekinesis & Push/Pull</option>
-                                    <option value="Force Sense & Empathy">Force Sense & Precognition</option>
-                                    <option value="Mind Trick & Persuasion">Mind Trick & Mental Discipline</option>
-                                    <option value="Tutaminis & Energy Absorption">Tutaminis (Energy Absorption)</option>
-                                </optgroup>
-                                <optgroup label="Temple Disciplines">
-                                    <option value="Meditation & Philosophy">Meditation & Codex Reflection</option>
-                                    <option value="Physical Conditioning">Physical Conditioning & Mobility</option>
-                                </optgroup>
+                        <div class="form-group">
+                            <label>Discipline Category</label>
+                            <select id="category">
+                                <option value="saber">Lightsaber Combat</option>
+                                <option value="force">Force Abilities</option>
+                                <option value="meditation">Meditation & Focus</option>
+                                <option value="lore">Jedi Code & Archives</option>
                             </select>
                         </div>
 
-                        <!-- Title/Focus -->
-                        <div>
-                            <label class="block text-xs font-orbitron text-gray-300 mb-1">SESSION TITLE / DRILL FOCUS</label>
-                            <input type="text" id="entry-title" placeholder="e.g., Blast-deflection blindfolded" required class="w-full bg-jedi-bg text-white border border-jedi-cyan/30 rounded px-3 py-2 text-sm focus:border-jedi-cyan focus:outline-none focus:ring-1 focus:ring-jedi-cyan">
+                        <div class="form-group">
+                            <label>Duration (Minutes)</label>
+                            <input type="number" id="duration" placeholder="45" min="5" required>
                         </div>
 
-                        <!-- Duration & Intensity -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-orbitron text-gray-300 mb-1">DURATION (MINUTES)</label>
-                                <input type="number" id="entry-duration" min="5" max="600" step="5" value="45" required class="w-full bg-jedi-bg text-white border border-jedi-cyan/30 rounded px-3 py-2 text-sm focus:border-jedi-cyan focus:outline-none focus:ring-1 focus:ring-jedi-cyan">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-orbitron text-gray-300 mb-1">FORCE INTENSITY (1-5)</label>
-                                <div class="flex items-center gap-2 mt-2" id="intensity-selector">
-                                    <!-- Buttons generated dynamically -->
-                                </div>
-                                <input type="hidden" id="entry-intensity" value="3">
-                            </div>
+                        <div class="form-group">
+                            <label>Session Notes & Reflection</label>
+                            <textarea id="notes" rows="4" placeholder="Document your breakthroughs or struggles..."></textarea>
                         </div>
 
-                        <!-- Mentor / Master Notes -->
-                        <div>
-                            <label class="block text-xs font-orbitron text-gray-300 mb-1">MASTER OBSERVATIONS & REFLECTIONS</label>
-                            <textarea id="entry-notes" rows="4" placeholder="Detail your balance, stance, focus level, or areas needing refinement..." class="w-full bg-jedi-bg text-white border border-jedi-cyan/30 rounded px-3 py-2 text-sm focus:border-jedi-cyan focus:outline-none focus:ring-1 focus:ring-jedi-cyan"></textarea>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex items-center gap-3 pt-2">
-                            <button type="submit" id="btn-submit" class="flex-1 bg-gradient-to-r from-jedi-blue to-jedi-cyan text-slate-950 font-orbitron font-bold py-2.5 px-4 rounded shadow-neon-cyan hover:brightness-110 transition-all text-sm tracking-wider uppercase">
-                                <i class="fa-solid fa-cube me-2"></i> RECORD IN ARCHIVES
-                            </button>
-                            <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden bg-gray-800 text-gray-300 hover:text-white font-orbitron py-2.5 px-4 rounded border border-gray-600 text-sm">
-                                CANCEL
-                            </button>
-                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fa-solid fa-plus"></i> Commit To Archives
+                        </button>
                     </form>
                 </div>
-            </section>
 
-            <!-- INSIGHTS & LOG DISPLAY (7 cols) -->
-            <section class="lg:col-span-7 space-y-6">
-                
-                <!-- VISUAL PROGRESS INSIGHTS CHART -->
-                <div class="sci-border p-5 rounded-lg">
-                    <h2 class="text-sm font-orbitron font-bold text-white flex items-center justify-between border-b border-jedi-cyan/20 pb-3 mb-4">
-                        <span><i class="fa-solid fa-chart-pie text-jedi-cyan me-2"></i> TRAINING DISTRIBUTION BY DISCIPLINE</span>
-                        <span class="text-xs font-normal text-gray-400">Holocron Telemetry</span>
-                    </h2>
-                    <div class="h-56 relative flex items-center justify-center">
-                        <canvas id="disciplineChart"></canvas>
+                <div class="card">
+                    <div class="card-title">Discipline Breakdown</div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Archives List -->
+            <div>
+                <div class="feed-header">
+                    <h2 style="font-family: var(--font-title); font-size: 1.3rem;">Training Telemetry</h2>
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="filterLogs('all')">All</button>
+                        <button class="filter-btn" onclick="filterLogs('saber')">Saber</button>
+                        <button class="filter-btn" onclick="filterLogs('force')">Force</button>
+                        <button class="filter-btn" onclick="filterLogs('meditation')">Meditation</button>
                     </div>
                 </div>
 
-                <!-- ARCHIVE LOGS & SEARCH FILTER -->
-                <div class="sci-border p-5 rounded-lg space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-jedi-cyan/20 pb-3">
-                        <h2 class="text-lg font-orbitron font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-database text-jedi-cyan"></i> ARCHIVED TELEMETRY LOGS
-                        </h2>
-
-                        <!-- SEARCH & CATEGORY FILTER -->
-                        <div class="flex items-center gap-2">
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-gray-400"></i>
-                                <input type="text" id="search-input" onkeyup="renderLogs()" placeholder="Search archives..." class="bg-jedi-bg text-xs text-white pl-8 pr-3 py-1.5 rounded border border-jedi-cyan/30 focus:outline-none focus:border-jedi-cyan w-36 sm:w-48">
-                            </div>
-                            <select id="filter-category" onchange="renderLogs()" class="bg-jedi-bg text-xs text-jedi-cyan border border-jedi-cyan/30 rounded px-2 py-1.5 focus:outline-none">
-                                <option value="ALL">All Categories</option>
-                                <option value="Lightsaber">Lightsaber Combat</option>
-                                <option value="Force">Force Manipulation</option>
-                                <option value="Temple">Temple Disciplines</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- LOG CARDS LIST -->
-                    <div id="logs-container" class="space-y-3 max-h-[520px] overflow-y-auto pr-1">
-                        <!-- Dynamic content -->
-                    </div>
+                <div id="logs-container">
+                    <!-- Dynamic Log Items will appear here -->
                 </div>
-            </section>
+            </div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="mt-12 border-t border-jedi-cyan/20 pt-6 text-center text-xs text-gray-500 font-orbitron">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div>JEDI TEMPLE ARCHIVES // PROTOCOL 66-A</div>
-            <div>MAY THE FORCE BE WITH YOU, ALWAYS</div>
-        </div>
-    </footer>
-
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- WISDOM QUOTES ---
-        const jediQuotes = [
-            "\"There is no emotion, there is peace. There is no ignorance, there is knowledge.\"",
-            "\"There is no passion, there is serenity. There is no chaos, there is harmony.\"",
-            "\"There is no death, there is the Force.\"",
-            "\"A Jedi uses the Force for knowledge and defense, never for attack.\" — Grand Master Yoda",
-            "\"Your focus determines your reality.\" — Master Qui-Gon Jinn",
-            "\"In a dark place we find ourselves, and a little more knowledge lights our way.\" — Master Yoda",
-            "\"The Force will be with you. Always.\" — Master Obi-Wan Kenobi",
-            "\"Mindful of the living Force you must be.\" — Master Qui-Gon Jinn"
+        // State
+        let logs = JSON.parse(localStorage.getItem('jedi_logs')) || [
+            { id: 1, title: 'Form III Soresu Deflection', category: 'saber', duration: 60, xp: 120, notes: 'Maintained blast-shield focus for 30 consecutive remote droids.', date: '2026-10-20' },
+            { id: 2, title: 'Deep Force Telekinesis', category: 'force', duration: 45, xp: 90, notes: 'Lifted 3 heavy rocks during high winds. Focus remained steady.', date: '2026-10-22' }
         ];
 
-        let currentQuoteIdx = 0;
-        function nextWisdomQuote() {
-            currentQuoteIdx = (currentQuoteIdx + 1) % jediQuotes.length;
-            document.getElementById('wisdom-quote').textContent = jediQuotes[currentQuoteIdx];
+        let currentFilter = 'all';
+        let chartInstance = null;
+
+        // Elements
+        const logForm = document.getElementById('log-form');
+        const logsContainer = document.getElementById('logs-container');
+        const totalXpEl = document.getElementById('total-xp');
+        const totalLogsEl = document.getElementById('total-logs');
+        const rankDisplayEl = document.getElementById('rank-display');
+        const xpNextEl = document.getElementById('xp-next');
+        const xpBarEl = document.getElementById('xp-bar');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLogs();
+            updateStats();
+            initChart();
+        });
+
+        // Save & Sync
+        function saveLogs() {
+            localStorage.setItem('jedi_logs', JSON.stringify(logs));
+            updateStats();
+            updateChart();
         }
 
-        // --- SAMPLE INITIAL DATA ---
-        const sampleLogs = [
-            {
-                id: "log-1",
-                date: "2026-10-22",
-                time: "07:30",
-                category: "Form III: Soresu",
-                title: "Blast Deflection & Perimeter Defense",
-                duration: 60,
-                intensity: 4,
-                notes: "Practiced deflecting remote droid fire with eyes shielded. Focused on minimum motion and energy conservation. Stance remained grounded despite rapid fire."
-            },
-            {
-                id: "log-2",
-                date: "2026-10-23",
-                time: "18:00",
-                category: "Meditation & Philosophy",
-                title: "Deep Temple Garden Attunement",
-                duration: 45,
-                intensity: 2,
-                notes: "Centered the mind near the ancient Kyber altar. Cleared residual anxieties from previous combat drills. Achieved deep clarity."
-            },
-            {
-                id: "log-3",
-                date: "2026-10-24",
-                time: "10:15",
-                category: "Force Telekinesis",
-                title: "Multi-Object Levitation & Flow",
-                duration: 50,
-                intensity: 5,
-                notes: "Maintained floating state for 5 heavy stone obelisks simultaneously. Noticed strain during lateral movements; need to refine breath control."
-            }
-        ];
+        // Add Log
+        logForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            const notes = document.getElementById('notes').value;
+            
+            // Calculate XP (2 XP per min)
+            const xp = duration * 2;
+            const date = new Date().toISOString().split('T')[0];
 
-        // --- LOCAL STORAGE MANAGER ---
-        function getLogs() {
-            const data = localStorage.getItem('jedi_training_logs');
-            if (!data) {
-                localStorage.setItem('jedi_training_logs', JSON.stringify(sampleLogs));
-                return sampleLogs;
-            }
-            return JSON.parse(data);
-        }
-
-        function saveLogsToStorage(logs) {
-            localStorage.setItem('jedi_training_logs', JSON.stringify(logs));
-        }
-
-        function getRank() {
-            return localStorage.getItem('jedi_user_rank') || 'Padawan';
-        }
-
-        function setRank(rank) {
-            localStorage.setItem('jedi_user_rank', rank);
-        }
-
-        // --- INTENSITY SELECTOR UI ---
-        function renderIntensitySelector(selectedVal = 3) {
-            const container = document.getElementById('intensity-selector');
-            container.innerHTML = '';
-            for (let i = 1; i <= 5; i++) {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = `w-8 h-8 rounded border font-orbitron text-xs font-bold transition-all ${
-                    i <= selectedVal 
-                        ? 'bg-jedi-cyan text-slate-950 border-jedi-cyan shadow-neon-cyan' 
-                        : 'bg-jedi-bg text-gray-500 border-gray-700 hover:border-jedi-cyan'
-                }`;
-                btn.textContent = i;
-                btn.onclick = () => {
-                    document.getElementById('entry-intensity').value = i;
-                    renderIntensitySelector(i);
-                };
-                container.appendChild(btn);
-            }
-        }
-
-        // --- RANK UI UPDATE ---
-        function updateRankUI() {
-            const rankSelect = document.getElementById('jedi-rank-select');
-            const selectedRank = rankSelect.value;
-            setRank(selectedRank);
-
-            const iconContainer = document.getElementById('rank-icon');
-            const desc = document.getElementById('rank-title-desc');
-
-            const rankConfigs = {
-                'Youngling': { icon: 'fa-shield-halved', color: 'text-gray-400', border: 'border-gray-500', desc: 'Temple Initiate' },
-                'Padawan': { icon: 'fa-wand-magic-sparkles', color: 'text-jedi-cyan', border: 'border-jedi-cyan', desc: 'Learner under Master Supervision' },
-                'Jedi Knight': { icon: 'fa-khanda', color: 'text-jedi-blue', border: 'border-jedi-blue', desc: 'Guardian of Peace & Justice' },
-                'Jedi Master': { icon: 'fa-sun', color: 'text-jedi-amber', border: 'border-jedi-amber', desc: 'Council Leader & Scholar' },
-                'Grand Master': { icon: 'fa-crown', color: 'text-jedi-green', border: 'border-jedi-green', desc: 'High Council Leader' }
+            const newLog = {
+                id: Date.now(),
+                title,
+                category,
+                duration,
+                xp,
+                notes,
+                date
             };
 
-            const cfg = rankConfigs[selectedRank] || rankConfigs['Padawan'];
-            iconContainer.innerHTML = `<i class="fa-solid ${cfg.icon}"></i>`;
-            iconContainer.className = `w-14 h-14 rounded-full border-2 ${cfg.border} flex items-center justify-center bg-jedi-bg ${cfg.color} text-2xl shadow-lg`;
-            desc.textContent = cfg.desc;
+            logs.unshift(newLog);
+            saveLogs();
+            renderLogs();
+            logForm.reset();
+        });
+
+        // Delete Log
+        function deleteLog(id) {
+            logs = logs.filter(log => log.id !== id);
+            saveLogs();
+            renderLogs();
         }
 
-        // --- STATS COMPUTATION ---
-        function updateStats(logs) {
-            document.getElementById('stat-total-sessions').textContent = logs.length;
+        // Render Feed
+        function renderLogs() {
+            logsContainer.innerHTML = '';
             
-            const totalMinutes = logs.reduce((acc, l) => acc + parseInt(l.duration || 0), 0);
-            document.getElementById('stat-total-hours').textContent = (totalMinutes / 60).toFixed(1);
+            const filteredLogs = currentFilter === 'all' 
+                ? logs 
+                : logs.filter(l => l.category === currentFilter);
 
-            const categories = new Set(logs.map(l => l.category));
-            document.getElementById('stat-disciplines').textContent = categories.size;
+            if (filteredLogs.length === 0) {
+                logsContainer.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 40px;" class="card">
+                        <i class="fa-solid fa-box-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>No Holocron telemetry found for this category.</p>
+                    </div>`;
+                return;
+            }
 
-            // Simple streak computation based on unique dates
-            const uniqueDates = Array.from(new Set(logs.map(l => l.date))).sort().reverse();
-            let streak = 0;
-            if (uniqueDates.length > 0) {
-                let checkDate = new Date();
-                // Normalize dates
-                const datesSet = new Set(uniqueDates);
-                for (let i = 0; i < 30; i++) {
-                    const dStr = checkDate.toISOString().split('T')[0];
-                    if (datesSet.has(dStr)) {
-                        streak++;
-                        checkDate.setDate(checkDate.getDate() - 1);
-                    } else if (i === 0) {
-                        // Allow today to not be logged yet, check yesterday
-                        checkDate.setDate(checkDate.getDate() - 1);
-                    } else {
-                        break;
-                    }
+            filteredLogs.forEach(log => {
+                const badgeClasses = {
+                    saber: 'badge-saber',
+                    force: 'badge-force',
+                    meditation: 'badge-meditation',
+                    lore: 'badge-lore'
+                };
+
+                const el = document.createElement('div');
+                el.className = 'log-entry';
+                el.innerHTML = `
+                    <div class="log-header">
+                        <span class="log-title">${escapeHtml(log.title)}</span>
+                        <div class="log-meta">
+                            <span>${log.date}</span>
+                            <button class="delete-btn" onclick="deleteLog(${log.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="badge ${badgeClasses[log.category]}">${log.category}</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-code);">${log.duration} MINS</span>
+                    </div>
+                    ${log.notes ? `<div class="log-notes">${escapeHtml(log.notes)}</div>` : ''}
+                    <div class="log-xp">+${log.xp} XP</div>
+                `;
+                logsContainer.appendChild(el);
+            });
+        }
+
+        // Calculate Ranks & Stats
+        function updateStats() {
+            const totalXp = logs.reduce((sum, item) => sum + item.xp, 0);
+            totalXpEl.textContent = `${totalXp} XP`;
+            totalLogsEl.textContent = logs.length;
+
+            // Rank Thresholds
+            const ranks = [
+                { name: 'Initiate / Youngling', xp: 0 },
+                { name: 'Padawan Learner', xp: 300 },
+                { name: 'Jedi Knight', xp: 800 },
+                { name: 'Jedi Master', xp: 2000 },
+                { name: 'Grand Master', xp: 5000 }
+            ];
+
+            let currentRank = ranks[0];
+            let nextRank = ranks[1];
+
+            for (let i = 0; i < ranks.length; i++) {
+                if (totalXp >= ranks[i].xp) {
+                    currentRank = ranks[i];
+                    nextRank = ranks[i + 1] || { name: 'Max Rank Reached', xp: totalXp };
                 }
             }
-            document.getElementById('stat-streak').textContent = `${streak} Day${streak === 1 ? '' : 's'}`;
+
+            rankDisplayEl.textContent = currentRank.name;
+            
+            if (nextRank.xp === totalXp) {
+                xpNextEl.textContent = 'MAX';
+                xpBarEl.style.width = '100%';
+            } else {
+                const needed = nextRank.xp - currentRank.xp;
+                const currentProgress = totalXp - currentRank.xp;
+                const percentage = Math.min(Math.max((currentProgress / needed) * 100, 5), 100);
+                
+                xpNextEl.textContent = `${nextRank.xp - totalXp} XP`;
+                xpBarEl.style.width = `${percentage}%`;
+            }
         }
 
-        // --- CHART INSIGHTS ---
-        let chartInstance = null;
-        function updateChart(logs) {
-            const ctx = document.getElementById('disciplineChart').getContext('2d');
-            
-            // Group durations by primary category group
-            const totals = {
-                'Lightsaber Combat': 0,
-                'Force Manipulation': 0,
-                'Meditation & Philosophy': 0,
-                'Physical Conditioning': 0
-            };
+        // Filter Logic
+        function filterLogs(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderLogs();
+        }
 
-            logs.forEach(l => {
-                const cat = l.category || '';
-                if (cat.includes('Form')) totals['Lightsaber Combat'] += parseInt(l.duration);
-                else if (cat.includes('Force')) totals['Force Manipulation'] += parseInt(l.duration);
-                else if (cat.includes('Meditation')) totals['Meditation & Philosophy'] += parseInt(l.duration);
-                else totals['Physical Conditioning'] += parseInt(l.duration);
-            });
+        // Theme Switcher
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+            event.target.classList.add('active');
+            updateChart();
+        }
 
-            const data = {
-                labels: Object.keys(totals),
-                datasets: [{
-                    data: Object.values(totals),
-                    backgroundColor: ['#00f3ff', '#0077ff', '#ffb700', '#00ff88'],
-                    borderColor: '#060911',
-                    borderWidth: 2
-                }]
-            };
+        // Utility
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
 
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
+        // Chart.js Telemetry Setup
+        function initChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: data,
+                data: getChartData(),
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
-                            labels: {
-                                color: '#d1d5db',
-                                font: { family: 'Orbitron', size: 10 }
-                            }
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { family: 'Consolas' } }
                         }
-                    }
+                    },
+                    cutout: '70%'
                 }
             });
         }
 
-        // --- RENDER LOG CARDS ---
-        function renderLogs() {
-            const logs = getLogs();
-            updateStats(logs);
-            updateChart(logs);
+        function getChartData() {
+            const counts = { saber: 0, force: 0, meditation: 0, lore: 0 };
+            logs.forEach(l => { if (counts[l.category] !== undefined) counts[l.category] += l.duration; });
 
-            const searchVal = document.getElementById('search-input').value.toLowerCase();
-            const filterCat = document.getElementById('filter-category').value;
-            const container = document.getElementById('logs-container');
-            container.innerHTML = '';
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
 
-            const filtered = logs.filter(log => {
-                const matchesSearch = log.title.toLowerCase().includes(searchVal) || 
-                                      log.category.toLowerCase().includes(searchVal) || 
-                                      log.notes.toLowerCase().includes(searchVal);
-                
-                let matchesCategory = true;
-                if (filterCat === 'Lightsaber') matchesCategory = log.category.includes('Form');
-                else if (filterCat === 'Force') matchesCategory = log.category.includes('Force');
-                else if (filterCat === 'Temple') matchesCategory = !log.category.includes('Form') && !log.category.includes('Force');
+            return {
+                labels: ['Saber', 'Force', 'Meditation', 'Lore'],
+                datasets: [{
+                    data: [counts.saber, counts.force, counts.meditation, counts.lore],
+                    backgroundColor: [
+                        primaryColor || '#00d4ff',
+                        '#a855f7',
+                        '#10b981',
+                        '#f59e0b'
+                    ],
+                    borderWidth: 0
+                }]
+            };
+        }
 
-                return matchesSearch && matchesCategory;
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 text-gray-500 font-orbitron text-xs">
-                        <i class="fa-solid fa-ghost text-2xl mb-2 text-jedi-cyan/40"></i><br>
-                        NO ARCHIVE ENTRIES FOUND MATCHING CRITERIA.
-                    </div>
-                `;
-                return;
+        function updateChart() {
+            if (chartInstance) {
+                chartInstance.data = getChartData();
+                chartInstance.update();
             }
-
-            filtered.sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`));
-
-            filtered.forEach(log => {
-                const isForm = log.category.includes('Form');
-                const badgeColor = isForm ? 'border-jedi-cyan text-jedi-cyan bg-jedi-cyan/10' :
-                                  log.category.includes('Force') ? 'border-jedi-blue text-jedi-blue bg-jedi-blue/10' :
-                                  'border-jedi-amber text-jedi-amber bg-jedi-amber/10';
-
-                const card = document.createElement('div');
-                card.className = "sci-border p-4 rounded bg-jedi-panel/50 hover:border-jedi-cyan/60 transition-all space-y-2 relative group";
-                card.innerHTML = `
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-orbitron border px-2 py-0.5 rounded ${badgeColor}">
-                                ${log.category}
-                            </span>
-                            <span class="text-xs font-orbitron text-gray-400">
-                                <i class="fa-regular fa-clock me-1"></i>${log.duration} min
-                            </span>
-                        </div>
-                        <div class="text-xs text-gray-400 font-mono">
-                            ${log.date} @ ${log.time}
-                        </div>
-                    </div>
-
-                    <h3 class="text-base font-orbitron font-bold text-white group-hover:text-jedi-cyan transition-colors">
-                        ${log.title}
-                    </h3>
-
-                    ${log.notes ? `<p class="text-xs text-gray-300 leading-relaxed font-sans bg-jedi-bg/60 p-2.5 rounded border border-gray-800/80">${log.notes}</p>` : ''}
-
-                    <div class="flex items-center justify-between pt-2 text-xs border-t border-gray-800/60">
-                        <div class="flex items-center gap-1 text-jedi-amber">
-                            <span class="text-[10px] font-orbitron uppercase text-gray-400 me-1">INTENSITY:</span>
-                            ${Array.from({length: 5}, (_, i) => `<i class="fa-solid fa-bolt ${i < log.intensity ? 'text-jedi-amber' : 'text-gray-700'}"></i>`).join('')}
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="editLog('${log.id}')" class="text-gray-400 hover:text-jedi-cyan font-orbitron text-[11px] px-2 py-1 bg-jedi-bg rounded border border-gray-700 hover:border-jedi-cyan transition-all">
-                                <i class="fa-solid fa-pen-to-square me-1"></i> EDIT
-                            </button>
-                            <button onclick="deleteLog('${log.id}')" class="text-gray-400 hover:text-jedi-red font-orbitron text-[11px] px-2 py-1 bg-jedi-bg rounded border border-gray-700 hover:border-jedi-red transition-all">
-                                <i class="fa-solid fa-trash-can me-1"></i> PURGE
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
         }
-
-        // --- SAVE / EDIT LOG ---
-        function saveLogEntry(e) {
-            e.preventDefault();
-            const id = document.getElementById('entry-id').value;
-            const date = document.getElementById('entry-date').value;
-            const time = document.getElementById('entry-time').value;
-            const category = document.getElementById('entry-category').value;
-            const title = document.getElementById('entry-title').value;
-            const duration = document.getElementById('entry-duration').value;
-            const intensity = document.getElementById('entry-intensity').value;
-            const notes = document.getElementById('entry-notes').value;
-
-            let logs = getLogs();
-
-            if (id) {
-                // Update existing
-                logs = logs.map(l => l.id === id ? { id, date, time, category, title, duration, intensity, notes } : l);
-            } else {
-                // New entry
-                const newLog = {
-                    id: 'log-' + Date.now(),
-                    date,
-                    time,
-                    category,
-                    title,
-                    duration,
-                    intensity,
-                    notes
-                };
-                logs.push(newLog);
-            }
-
-            saveLogsToStorage(logs);
-            resetForm();
-            renderLogs();
-        }
-
-        function editLog(id) {
-            const logs = getLogs();
-            const log = logs.find(l => l.id === id);
-            if (!log) return;
-
-            document.getElementById('entry-id').value = log.id;
-            document.getElementById('entry-date').value = log.date;
-            document.getElementById('entry-time').value = log.time;
-            document.getElementById('entry-category').value = log.category;
-            document.getElementById('entry-title').value = log.title;
-            document.getElementById('entry-duration').value = log.duration;
-            document.getElementById('entry-intensity').value = log.intensity;
-            document.getElementById('entry-notes').value = log.notes;
-
-            renderIntensitySelector(parseInt(log.intensity));
-
-            document.getElementById('btn-submit').innerHTML = '<i class="fa-solid fa-wrench me-2"></i> UPDATE ARCHIVE';
-            document.getElementById('btn-cancel').classList.remove('hidden');
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function deleteLog(id) {
-            if (!confirm('Are you sure you wish to purge this training entry from the Jedi Archives?')) return;
-            let logs = getLogs();
-            logs = logs.filter(l => l.id !== id);
-            saveLogsToStorage(logs);
-            renderLogs();
-        }
-
-        function resetForm() {
-            document.getElementById('training-form').reset();
-            document.getElementById('entry-id').value = '';
-            
-            // Default current date and time
-            const now = new Date();
-            document.getElementById('entry-date').value = now.toISOString().split('T')[0];
-            document.getElementById('entry-time').value = now.toTimeString().slice(0, 5);
-
-            document.getElementById('entry-intensity').value = 3;
-            renderIntensitySelector(3);
-
-            document.getElementById('btn-submit').innerHTML = '<i class="fa-solid fa-cube me-2"></i> RECORD IN ARCHIVES';
-            document.getElementById('btn-cancel').classList.add('hidden');
-        }
-
-        // --- INITIALIZATION ---
-        window.onload = function() {
-            // Set initial rank
-            const savedRank = getRank();
-            document.getElementById('jedi-rank-select').value = savedRank;
-            updateRankUI();
-
-            // Set default date/time inputs
-            resetForm();
-
-            // Render components
-            renderLogs();
-
-            // Start Wisdom Quote auto-rotate every 12 seconds
-            setInterval(nextWisdomQuote, 12000);
-        };
     </script>
 </body>
 </html>
