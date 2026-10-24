@@ -701,7 +701,7 @@
                 trainerRank: 'Battalion Commander',
                 trainedName: 'Rex',
                 status: 'PASSED',
-                date: '2026-10-25',
+                date: getTodayDate(),
                 checklist: {
                     p1_facing: true, p1_salute: true,
                     p2_codes: true, p2_radio: true,
@@ -711,6 +711,15 @@
                 notes: 'Showed excellent command of facing drills and status codes.'
             }
         ];
+
+        // Automatic Date Generator YYYY-MM-DD
+        function getTodayDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
@@ -740,7 +749,7 @@
                 trainerRank: document.getElementById('trainer-rank').value,
                 trainedName: document.getElementById('trained-name').value,
                 status: document.getElementById('result-status').value,
-                date: new Date().toISOString().split('T')[0],
+                date: getTodayDate(), // AUTO-LOGS CURRENT DATE
                 checklist: {
                     p1_facing: document.getElementById('chk-p1-facing').checked,
                     p1_salute: document.getElementById('chk-p1-salute').checked,
