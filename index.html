@@ -456,7 +456,7 @@
 
         .modal-textarea {
             width: 100%;
-            height: 220px;
+            height: 260px;
             background: #03060a;
             color: #00d4ff;
             font-family: var(--font-code);
@@ -544,7 +544,7 @@
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Trainer Username</label>
-                            <input type="text" id="trainer-name" placeholder="e.g. CC-2224 Cody" required>
+                            <input type="text" id="trainer-name" placeholder="e.g. Cody" required>
                         </div>
                         <div class="form-group">
                             <label>Trainer Rank</label>
@@ -558,7 +558,7 @@
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Trained Username(s)</label>
-                            <input type="text" id="trained-name" placeholder="e.g. CT-5555 Fives" required>
+                            <input type="text" id="trained-name" placeholder="e.g. Fives, Echo" required>
                         </div>
                         <div class="form-group">
                             <label>Result Outcome</label>
@@ -678,7 +678,7 @@
             <h3 style="font-family: var(--font-code); color: #5865F2; margin-bottom: 8px;">
                 <i class="fa-brands fa-discord"></i> Discord Format Ready
             </h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Texten nedan är markerad. Klicka på knappen för att kopiera till Discord:</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Texten nedan är redo. Klicka på knappen för att kopiera:</p>
             <textarea class="modal-textarea" id="modal-text" readonly></textarea>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button class="btn-sm" onclick="closeModal()">Stäng</button>
@@ -697,11 +697,11 @@
         let logs = JSON.parse(localStorage.getItem('rep_training_logs')) || [
             {
                 id: 1,
-                trainerName: 'CC-2224 Cody',
+                trainerName: 'Cody',
                 trainerRank: 'Battalion Commander',
-                trainedName: 'CT-7567 Rex',
+                trainedName: 'Rex',
                 status: 'PASSED',
-                date: '2026-10-24',
+                date: '2026-10-25',
                 checklist: {
                     p1_facing: true, p1_salute: true,
                     p2_codes: true, p2_radio: true,
@@ -792,129 +792,3 @@
                 `;
                 container.appendChild(el);
             });
-        }
-
-        // Stats
-        function updateStats() {
-            document.getElementById('stat-total').textContent = logs.length;
-            const passed = logs.filter(l => l.status === 'PASSED').length;
-            const failed = logs.filter(l => l.status === 'FAILED').length;
-            document.getElementById('stat-passed').textContent = passed;
-            document.getElementById('stat-failed').textContent = failed;
-        }
-
-        // Delete
-        function deleteLog(id) {
-            logs = logs.filter(l => l.id !== id);
-            saveLogs();
-            renderLogs();
-        }
-
-        function clearLogs() {
-            if (confirm('Är du säker på att du vill rensa alla sparade loggar?')) {
-                logs = [];
-                saveLogs();
-                renderLogs();
-            }
-        }
-
-        // Discord Log Format Builder
-        function buildDiscordFormat(data) {
-            const c = data.checklist;
-            const formatCheck = (val) => val ? '✅' : '❌';
-
-            return "```\n" +
-`==================================================
-        GRAND REPUBLIC TRAINING LOG
-==================================================
-Trainer Username : ${data.trainerName}
-Trainer Rank     : ${data.trainerRank}
-Trained Username : ${data.trainedName}
-Result Outcome   : [ ${data.status} ]
-Date             : ${data.date}
-
---- TRAINING PHASES CHECKLIST ---
-[ ${formatCheck(c.p1_facing)} ] Phase 1: Facing Drills (Right/Left/About Face)
-[ ${formatCheck(c.p1_salute)} ] Phase 1: Salutes & Basic Formations
-[ ${formatCheck(c.p2_codes)} ] Phase 2: Comms (Green, Yellow, Red, Black)
-[ ${formatCheck(c.p2_radio)} ] Phase 2: Comms Protocol & Callouts
-[ ${formatCheck(c.p3_posts)} ] Phase 3: Tour of Posts
-[ ${formatCheck(c.p3_armory)} ] Phase 3: Armory & Jedi Temple Walkthrough
-[ ${formatCheck(c.p4_joined)} ] Phase 4: Joined Discord Server
-[ ${formatCheck(c.p4_nick)} ] Phase 4: Nickname & Roles Configured
-
---- REMARKS & NOTES ---
-${data.notes ? data.notes : 'N/A'}
-==================================================` +
-"\n```";
-        }
-
-        function generateDiscordLogFromForm() {
-            const data = getFormData();
-            showModal(buildDiscordFormat(data));
-        }
-
-        function exportSingleDiscord(id) {
-            const log = logs.find(l => l.id === id);
-            if (log) {
-                showModal(buildDiscordFormat(log));
-            }
-        }
-
-        // Modal & Copy Functionality
-        function showModal(text) {
-            const textarea = document.getElementById('modal-text');
-            textarea.value = text;
-            document.getElementById('discord-modal').style.display = 'flex';
-            setTimeout(() => {
-                textarea.focus();
-                textarea.select();
-            }, 100);
-        }
-
-        function closeModal() {
-            document.getElementById('discord-modal').style.display = 'none';
-        }
-
-        function copyModalText() {
-            const textarea = document.getElementById('modal-text');
-            textarea.select();
-            textarea.setSelectionRange(0, 99999);
-
-            try {
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(textarea.value).then(() => {
-                        showToast('Kopierat till urklipp!');
-                    });
-                } else {
-                    document.execCommand('copy');
-                    showToast('Kopierat till urklipp!');
-                }
-            } catch (err) {
-                alert('Markera texten manuellt och tryck Ctrl+C för att kopiera.');
-            }
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast-msg');
-            toast.innerHTML = `<i class="fa-solid fa-check"></i> ${msg}`;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 2500);
-        }
-
-        // Theme Switcher
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
-            const targetDot = document.querySelector(`.dot-${theme}`);
-            if (targetDot) targetDot.classList.add('active');
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-    </script>
-</body>
-</html>
