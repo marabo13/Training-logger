@@ -4,72 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Republic Training Logger // Discord Cadre</title>
-    <!-- FontAwesome for Military/Sci-Fi Icons -->
+    <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-deep: #06090e;
-            --bg-card: rgba(13, 22, 35, 0.85);
-            --bg-card-border: rgba(0, 162, 255, 0.25);
-            --primary: #00a2ff;
-            --primary-glow: rgba(0, 162, 255, 0.4);
+            --bg-deep: #05080e;
+            --bg-card: rgba(10, 16, 26, 0.85);
+            --bg-card-border: rgba(0, 212, 255, 0.25);
+            --primary: #00d4ff;
+            --primary-glow: rgba(0, 212, 255, 0.4);
             --accent-green: #10b981;
             --accent-amber: #f59e0b;
             --accent-red: #ef4444;
-            --text-main: #e2e8f0;
+            --text-main: #f1f5f9;
             --text-muted: #64748b;
             --font-code: 'Consolas', 'Courier New', monospace;
-            --font-title: 'Orbitron', 'Cinzel', sans-serif;
+            --font-title: 'Segoe UI', system-ui, sans-serif;
         }
 
-        [data-theme="coruscant"] {
-            --primary: #dc2626;
-            --primary-glow: rgba(220, 38, 38, 0.4);
-            --bg-card-border: rgba(220, 38, 38, 0.3);
+        /* Color Themes */
+        [data-theme="black"] {
+            --bg-deep: #020203;
+            --bg-card: rgba(15, 15, 18, 0.9);
+            --primary: #eab308;
+            --primary-glow: rgba(234, 179, 8, 0.4);
+            --bg-card-border: rgba(234, 179, 8, 0.3);
         }
 
-        [data-theme="212th"] {
-            --primary: #f97316;
-            --primary-glow: rgba(249, 115, 22, 0.4);
-            --bg-card-border: rgba(249, 115, 22, 0.3);
+        [data-theme="pink"] {
+            --primary: #ec4899;
+            --primary-glow: rgba(236, 72, 153, 0.4);
+            --bg-card-border: rgba(236, 72, 153, 0.3);
         }
 
-        [data-theme="104th"] {
-            --primary: #64748b;
-            --primary-glow: rgba(100, 116, 139, 0.4);
-            --bg-card-border: rgba(100, 116, 139, 0.3);
+        [data-theme="purple"] {
+            --primary: #a855f7;
+            --primary-glow: rgba(168, 85, 247, 0.4);
+            --bg-card-border: rgba(168, 85, 247, 0.3);
+        }
+
+        [data-theme="red"] {
+            --primary: #ef4444;
+            --primary-glow: rgba(239, 68, 68, 0.4);
+            --bg-card-border: rgba(239, 68, 68, 0.3);
+        }
+
+        [data-theme="blue"] {
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --bg-card-border: rgba(59, 130, 246, 0.3);
+        }
+
+        [data-theme="cyan"] {
+            --primary: #06b6d4;
+            --primary-glow: rgba(6, 182, 212, 0.4);
+            --bg-card-border: rgba(6, 182, 212, 0.3);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
             background-color: var(--bg-deep);
             color: var(--text-main);
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 162, 255, 0.08) 0%, transparent 70%),
+                radial-gradient(circle at 50% 0%, var(--primary-glow) 0%, transparent 60%),
                 linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
             min-height: 100vh;
             padding: 20px;
-        }
-
-        /* Tactical HUD overlay */
-        body::after {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
-            background-size: 100% 4px;
-            z-index: 999;
-            pointer-events: none;
-            opacity: 0.5;
+            font-family: var(--font-title);
         }
 
         .container {
@@ -84,18 +92,8 @@
             padding: 15px 0 25px 0;
             border-bottom: 1px solid var(--bg-card-border);
             margin-bottom: 25px;
-            position: relative;
-        }
-
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 180px;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .logo-group {
@@ -108,10 +106,10 @@
             font-size: 2.2rem;
             color: var(--primary);
             text-shadow: 0 0 12px var(--primary);
+            transition: color 0.3s;
         }
 
         h1 {
-            font-family: var(--font-title);
             letter-spacing: 2px;
             font-size: 1.5rem;
             text-transform: uppercase;
@@ -125,10 +123,59 @@
             letter-spacing: 2px;
         }
 
-        /* Profile & Stats Bar */
+        /* Theme Picker */
+        .theme-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.03);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .theme-label {
+            font-size: 0.75rem;
+            font-family: var(--font-code);
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .theme-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .dot:hover {
+            transform: scale(1.2);
+        }
+
+        .dot-black { background: #eab308; }
+        .dot-pink { background: #ec4899; }
+        .dot-purple { background: #a855f7; }
+        .dot-red { background: #ef4444; }
+        .dot-blue { background: #3b82f6; }
+        .dot-cyan { background: #06b6d4; }
+
+        .dot.active {
+            border-color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* Stats Bar */
         .stats-bar {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
@@ -136,11 +183,12 @@
         .card {
             background: var(--bg-card);
             border: 1px solid var(--bg-card-border);
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 18px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             position: relative;
+            transition: border-color 0.3s;
         }
 
         .card::before {
@@ -149,6 +197,7 @@
             top: 0; left: 0;
             width: 3px; height: 100%;
             background: var(--primary);
+            transition: background 0.3s;
         }
 
         .card-title {
@@ -171,7 +220,7 @@
         /* Layout Grid */
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 420px;
             gap: 25px;
         }
 
@@ -216,7 +265,7 @@
             width: 100%;
             padding: 10px;
             background: rgba(5, 12, 22, 0.9);
-            border: 1px solid rgba(0, 162, 255, 0.25);
+            border: 1px solid var(--bg-card-border);
             border-radius: 4px;
             color: #fff;
             font-size: 0.9rem;
@@ -226,7 +275,7 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 8px var(--primary-glow);
+            box-shadow: 0 0 10px var(--primary-glow);
         }
 
         /* Checklist */
@@ -252,11 +301,11 @@
             align-items: flex-start;
             gap: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, border-color 0.2s;
         }
 
         .check-item:hover {
-            background: rgba(0, 162, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-color: var(--primary);
         }
 
@@ -301,7 +350,7 @@
 
         .btn:hover {
             background: var(--primary);
-            color: var(--bg-deep);
+            color: #000;
             box-shadow: 0 0 15px var(--primary-glow);
         }
 
@@ -367,7 +416,7 @@
         }
 
         .btn-sm {
-            padding: 4px 8px;
+            padding: 5px 10px;
             font-size: 0.75rem;
             border-radius: 3px;
             background: rgba(255,255,255,0.05);
@@ -375,6 +424,7 @@
             color: var(--text-main);
             cursor: pointer;
             font-family: var(--font-code);
+            transition: all 0.2s;
         }
 
         .btn-sm:hover {
@@ -382,42 +432,22 @@
             color: var(--primary);
         }
 
-        /* Theme Selector */
-        .theme-selector {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-
-        .dot-501st { background: #00a2ff; }
-        .dot-coruscant { background: #dc2626; }
-        .dot-212th { background: #f97316; }
-        .dot-104th { background: #64748b; }
-
-        .dot.active { border-color: #fff; }
-
         /* Modal for Output */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: #0d1623;
+            background: #090e17;
             border: 1px solid var(--primary);
-            border-radius: 6px;
+            border-radius: 8px;
             width: 90%;
             max-width: 600px;
             padding: 20px;
@@ -426,14 +456,38 @@
 
         .modal-textarea {
             width: 100%;
-            height: 200px;
-            background: #04080e;
+            height: 220px;
+            background: #03060a;
             color: #00d4ff;
             font-family: var(--font-code);
             font-size: 0.85rem;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid rgba(0, 162, 255, 0.3);
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            resize: none;
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -445,15 +499,20 @@
                 <i class="fa-solid fa-shield-halved rep-icon"></i>
                 <div>
                     <h1>Grand Republic Log System</h1>
-                    <div class="subtitle">CADRE_TRAINING_ASSESSMENT // DISCORD_LOGS</div>
+                    <div class="subtitle">DISCORD_CADRE_TRAINING_LOGGER</div>
                 </div>
             </div>
 
-            <div class="theme-selector">
-                <div class="dot dot-501st active" onclick="setTheme('501st')" title="501st Legion (Blue)"></div>
-                <div class="dot dot-coruscant" onclick="setTheme('coruscant')" title="Coruscant Guard (Red)"></div>
-                <div class="dot dot-212th" onclick="setTheme('212th')" title="212th Battalion (Orange)"></div>
-                <div class="dot dot-104th" onclick="setTheme('104th')" title="104th Wolfpack (Grey)"></div>
+            <div class="theme-picker">
+                <span class="theme-label">Färgtema:</span>
+                <div class="theme-dots">
+                    <div class="dot dot-cyan active" onclick="setTheme('cyan')" title="Cyber Cyan"></div>
+                    <div class="dot dot-black" onclick="setTheme('black')" title="Void Black & Gold"></div>
+                    <div class="dot dot-pink" onclick="setTheme('pink')" title="Cyber Pink"></div>
+                    <div class="dot dot-purple" onclick="setTheme('purple')" title="Imperial Purple"></div>
+                    <div class="dot dot-red" onclick="setTheme('red')" title="Sith Crimson"></div>
+                    <div class="dot dot-blue" onclick="setTheme('blue')" title="Republic Blue"></div>
+                </div>
             </div>
         </header>
 
@@ -490,14 +549,8 @@
                         <div class="form-group">
                             <label>Trainer Rank</label>
                             <select id="trainer-rank">
-                                <option value="Cadet">Cadet</option>
-                                <option value="Trooper">Trooper</option>
-                                <option value="Corporal">Corporal</option>
-                                <option value="Sergeant" selected>Sergeant</option>
-                                <option value="Lieutenant">Lieutenant</option>
-                                <option value="Captain">Captain</option>
-                                <option value="Major">Major</option>
-                                <option value="Commander">Commander</option>
+                                <option value="Jedi Master" selected>Jedi Master</option>
+                                <option value="Battalion Commander">Battalion Commander</option>
                             </select>
                         </div>
                     </div>
@@ -532,7 +585,7 @@
                             <input type="checkbox" id="chk-p1-salute" checked>
                             <div class="check-label">
                                 <span class="check-phase">Phase 1: Drill & Facing</span>
-                                Saluting & Basic Formations
+                                Saluting & Formations
                             </div>
                         </label>
 
@@ -548,7 +601,7 @@
                             <input type="checkbox" id="chk-p2-radio" checked>
                             <div class="check-label">
                                 <span class="check-phase">Phase 2: Comms</span>
-                                Comms Etiquette & Callouts
+                                Radio Etiquette & Callouts
                             </div>
                         </label>
 
@@ -556,7 +609,7 @@
                             <input type="checkbox" id="chk-p3-posts" checked>
                             <div class="check-label">
                                 <span class="check-phase">Phase 3: Base Tour</span>
-                                Tour of Duty Posts
+                                Tour of Posts
                             </div>
                         </label>
 
@@ -564,7 +617,7 @@
                             <input type="checkbox" id="chk-p3-armory" checked>
                             <div class="check-label">
                                 <span class="check-phase">Phase 3: Base Tour</span>
-                                Armory & Jedi Temple Locations
+                                Armory & Jedi Temple Walkthrough
                             </div>
                         </label>
 
@@ -580,7 +633,7 @@
                             <input type="checkbox" id="chk-p4-nick" checked>
                             <div class="check-label">
                                 <span class="check-phase">Phase 4: Discord</span>
-                                Updated Nickname & Roles Assigned
+                                Nickname & Roles Configured
                             </div>
                         </label>
 
@@ -607,7 +660,7 @@
             <!-- Right: Log History -->
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-family: var(--font-title); font-size: 1rem;">Recent Telemetry Logs</h3>
+                    <h3 style="font-size: 1rem; text-transform: uppercase; font-family: var(--font-code);">Recent Log History</h3>
                     <button class="btn-sm" onclick="clearLogs()"><i class="fa-solid fa-trash"></i> Clear All</button>
                 </div>
 
@@ -622,27 +675,30 @@
     <!-- Modal for Discord Copy -->
     <div class="modal" id="discord-modal">
         <div class="modal-content">
-            <h3 style="font-family: var(--font-title); color: #5865F2; margin-bottom: 8px;">
+            <h3 style="font-family: var(--font-code); color: #5865F2; margin-bottom: 8px;">
                 <i class="fa-brands fa-discord"></i> Discord Format Ready
             </h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Kopiera koden nedan och klistra in i er träningskanal på Discord:</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Texten nedan är markerad. Klicka på knappen för att kopiera till Discord:</p>
             <textarea class="modal-textarea" id="modal-text" readonly></textarea>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button class="btn-sm" onclick="closeModal()">Stäng</button>
-                <button class="btn btn-discord" style="width: auto; padding: 6px 16px;" onclick="copyModalText()">
+                <button class="btn btn-discord" style="width: auto; padding: 6px 18px;" onclick="copyModalText()">
                     <i class="fa-solid fa-copy"></i> Kopiera Text
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Toast Notice -->
+    <div class="toast" id="toast-msg"><i class="fa-solid fa-check"></i> Kopierat till urklipp!</div>
+
     <script>
-        // Default State
+        // State
         let logs = JSON.parse(localStorage.getItem('rep_training_logs')) || [
             {
                 id: 1,
                 trainerName: 'CC-2224 Cody',
-                trainerRank: 'Commander',
+                trainerRank: 'Battalion Commander',
                 trainedName: 'CT-7567 Rex',
                 status: 'PASSED',
                 date: '2026-10-24',
@@ -662,7 +718,6 @@
             updateStats();
         });
 
-        // Save
         function saveLogs() {
             localStorage.setItem('rep_training_logs', JSON.stringify(logs));
             updateStats();
@@ -671,12 +726,11 @@
         // Form Submit
         document.getElementById('cadre-form').addEventListener('submit', (e) => {
             e.preventDefault();
-
             const newLog = getFormData();
             logs.unshift(newLog);
             saveLogs();
             renderLogs();
-            alert('Träningslogg sparad!');
+            showToast('Träningslogg sparad!');
         });
 
         function getFormData() {
@@ -723,7 +777,7 @@
                     <div class="log-header">
                         <div>
                             <div class="log-recruits">Recruit: ${escapeHtml(log.trainedName)}</div>
-                            <div class="log-meta">Trainer: [${log.trainerRank}]${escapeHtml(log.trainerName)}</div>
+                            <div class="log-meta">Trainer: [${log.trainerRank}] ${escapeHtml(log.trainerName)}</div>
                         </div>
                         <span class="status-badge ${statusClass}">${log.status}</span>
                     </div>
@@ -764,13 +818,13 @@
             }
         }
 
-        // Discord Log Generator
+        // Discord Log Format Builder
         function buildDiscordFormat(data) {
             const c = data.checklist;
             const formatCheck = (val) => val ? '✅' : '❌';
 
-            return ````
-==================================================
+            return "```\n" +
+`==================================================
         GRAND REPUBLIC TRAINING LOG
 ==================================================
 Trainer Username : ${data.trainerName}
@@ -791,8 +845,8 @@ Date             : ${data.date}
 
 --- REMARKS & NOTES ---
 ${data.notes ? data.notes : 'N/A'}
-==================================================
-`````;
+==================================================` +
+"\n```";
         }
 
         function generateDiscordLogFromForm() {
@@ -807,10 +861,15 @@ ${data.notes ? data.notes : 'N/A'}
             }
         }
 
-        // Modal Logic
+        // Modal & Copy Functionality
         function showModal(text) {
-            document.getElementById('modal-text').value = text;
+            const textarea = document.getElementById('modal-text');
+            textarea.value = text;
             document.getElementById('discord-modal').style.display = 'flex';
+            setTimeout(() => {
+                textarea.focus();
+                textarea.select();
+            }, 100);
         }
 
         function closeModal() {
@@ -820,18 +879,39 @@ ${data.notes ? data.notes : 'N/A'}
         function copyModalText() {
             const textarea = document.getElementById('modal-text');
             textarea.select();
-            document.execCommand('copy');
-            alert('Kopierat till urklipp! Klistra in i er Discord-kanal.');
+            textarea.setSelectionRange(0, 99999);
+
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textarea.value).then(() => {
+                        showToast('Kopierat till urklipp!');
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showToast('Kopierat till urklipp!');
+                }
+            } catch (err) {
+                alert('Markera texten manuellt och tryck Ctrl+C för att kopiera.');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerHTML = `<i class="fa-solid fa-check"></i> ${msg}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2500);
         }
 
         // Theme Switcher
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
-            event.target.classList.add('active');
+            const targetDot = document.querySelector(`.dot-${theme}`);
+            if (targetDot) targetDot.classList.add('active');
         }
 
-        // Utility
         function escapeHtml(str) {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
